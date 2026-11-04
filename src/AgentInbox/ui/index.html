@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent 收件箱</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app" class="app">
+    <header class="titlebar" id="titlebar">
+      <div class="brand">
+        <img class="logo" src="logo.png" alt="">
+        <div class="brand-text">
+          <div class="brand-title">Agent 收件箱</div>
+          <div class="brand-sub" id="brandSub">正在扫描本地会话…</div>
+        </div>
+      </div>
+      <div class="win-actions">
+        <button class="icon-btn" id="pinBtn" title="始终置顶" aria-label="始终置顶">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 6 3 3v2H7v-2l3-3-1-6Z"/><path d="M12 14v7"/></svg>
+        </button>
+        <button class="icon-btn" id="minBtn" title="最小化" aria-label="最小化">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+        </button>
+        <button class="icon-btn close" id="closeBtn" title="隐藏到托盘" aria-label="隐藏到托盘">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <nav class="filters" id="filters" aria-label="筛选">
+        <button class="filter active" data-filter="all">全部 <span id="countAll">0</span></button>
+        <button class="filter" data-filter="unread">待看 <span id="countUnread">0</span></button>
+        <button class="filter" data-filter="running">进行中 <span id="countRunning">0</span></button>
+        <button class="filter" data-filter="done">已完成 <span id="countDone">0</span></button>
+      </nav>
+      <div class="tools">
+        <button class="icon-btn small" id="refreshBtn" title="立即刷新" aria-label="立即刷新">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        </button>
+        <button class="icon-btn small" id="settingsBtn" title="设置" aria-label="设置">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.6v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <main class="list" id="list" aria-live="polite"></main>
+
+    <footer class="footer">
+      <div class="scanline">
+        <span class="pulse" id="scanPulse"></span>
+        <span id="scanText">等待扫描</span>
+      </div>
+      <div class="footer-actions">
+        <button class="ghost-btn" id="clearDoneBtn">清理已完成</button>
+      </div>
+    </footer>
+
+    <section class="settings-panel" id="settingsPanel" aria-hidden="true">
+      <header class="settings-head">
+        <button class="icon-btn small" id="settingsBack" title="返回" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+        <h2>设置</h2>
+        <span class="settings-version" id="versionText"></span>
+      </header>
+      <div class="settings-body" id="settingsBody"></div>
+    </section>
+
+    <div class="toast-wrap" id="toastWrap" aria-live="assertive"></div>
+
+    <div class="menu" id="menu" role="menu"></div>
+
+    <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <h3 id="modalTitle">确认</h3>
+        <p id="modalText"></p>
+        <div class="modal-actions">
+          <button class="ghost-btn" id="modalCancel">取消</button>
+          <button class="danger-btn" id="modalOk">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

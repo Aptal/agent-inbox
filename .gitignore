@@ -1,0 +1,9 @@
+bin/
+obj/
+dist/
+fixture/
+diag.json
+preview*.png
+app-window.png
+*.user
+.vs/
