@@ -8,7 +8,7 @@
         MinWidth="360" MinHeight="480"
         WindowStyle="None"
         ResizeMode="CanResize"
-        Background="#0E1116"
+        Background="#0D0D0C"
         ShowInTaskbar="True"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
@@ -22,13 +22,13 @@
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
 
-    <Grid Background="#0E1116">
+    <Grid Background="#0D0D0C">
         <wv2:WebView2 x:Name="Web" />
-        <Border x:Name="LoadingOverlay" Background="#0E1116">
+        <Border x:Name="LoadingOverlay" Background="#0D0D0C">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="Agent 收件箱" Foreground="#E6EAF2" FontSize="18" FontWeight="SemiBold"
+                <TextBlock Text="Agent 收件箱" Foreground="#F3F0E9" FontSize="18" FontWeight="SemiBold"
                            HorizontalAlignment="Center" />
-                <TextBlock Text="正在加载本地会话…" Foreground="#7D8798" FontSize="12" Margin="0,8,0,0"
+                <TextBlock Text="正在加载本地会话…" Foreground="#B5AFA4" FontSize="12" Margin="0,8,0,0"
                            HorizontalAlignment="Center" />
             </StackPanel>
         </Border>

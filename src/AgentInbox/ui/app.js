@@ -127,7 +127,6 @@
           <div class="row-title">${title}</div>
           <div class="row-meta">
             <span class="folder">${folderLabel(row.cwd)}</span>
-            <span class="meta-sep"></span>
             <span class="state ${chip.cls}">${chip.text}</span>
           </div>
         </div>
@@ -244,9 +243,9 @@
   function summaryText() {
     if (!view.data) return '正在加载…';
     const { unread, running, total } = view.data.counts ?? {};
-    if (unread > 0) return `${unread} 条待看 · ${running ?? 0} 个进行中`;
-    if (running > 0) return `${running} 个进行中 · 共 ${total ?? 0} 条记录`;
-    return `${total ?? 0} 条记录 · 最近扫描 ${clockTime(view.data.lastScanAt) || '—'}`;
+    if (unread > 0) return `${unread} 条待看，${running ?? 0} 个进行中`;
+    if (running > 0) return `${running} 个进行中，共 ${total ?? 0} 条记录`;
+    return `${total ?? 0} 条记录，最近扫描 ${clockTime(view.data.lastScanAt) || '—'}`;
   }
 
   function render() {
@@ -764,7 +763,7 @@
       },
       scanning: false,
       lastScanAt: new Date(now - 6000).toISOString(),
-      version: '0.1.1',
+      version: '0.2.0',
       appDataPath: 'C:\\Users\\demo\\AppData\\Roaming\\AgentInbox',
     };
   }

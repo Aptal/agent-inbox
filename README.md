@@ -25,6 +25,10 @@
 - 始终置顶、托盘菜单、单实例、开机自启（可选）、窗口位置记忆；
 - 全程离线，不联网、不上传会话内容。
 
+## 配色
+
+界面采用暖石墨中性色 + 低饱和蓝紫信号色，来源色只用于侧条和小徽标；已完成记录降低底色而不是压暗整行。色板、对比度数据和参考的 frontend-design / Web Interface Guidelines 方法见 [设计说明](docs/design.md)。
+
 ## 支持的数据源
 
 | 来源 | 读取位置 | 标题 | 完成判定 |
@@ -39,7 +43,7 @@
 
 ### 直接运行
 
-从 [Releases](https://github.com/Aptal/agent-inbox/releases/latest) 下载 `AgentInbox-v0.1.1-win-x64.zip`，解压后保持以下结构：
+从 [Releases](https://github.com/Aptal/agent-inbox/releases/latest) 下载 `AgentInbox-v0.2.0-win-x64.zip`，解压后保持以下结构：
 
 ```text
 AgentInbox.exe
