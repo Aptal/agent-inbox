@@ -12,7 +12,7 @@
     <RootNamespace>AgentInbox</RootNamespace>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Product>Agent 收件箱</Product>
     <Company>Local</Company>
     <Description>跨 DSH / Codex / Claude Code 的本地 Agent 会话收件箱</Description>

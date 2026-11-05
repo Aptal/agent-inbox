@@ -39,7 +39,7 @@
 
 ### 直接运行
 
-从 [Releases](https://github.com/Aptal/agent-inbox/releases/latest) 下载 `AgentInbox-v0.1.0-win-x64.zip`，解压后保持以下结构：
+从 [Releases](https://github.com/Aptal/agent-inbox/releases/latest) 下载 `AgentInbox-v0.1.1-win-x64.zip`，解压后保持以下结构：
 
 ```text
 AgentInbox.exe

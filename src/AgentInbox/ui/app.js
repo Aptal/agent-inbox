@@ -28,6 +28,12 @@
   const SOURCE_NAMES = { dsh: 'DSH', codex: 'Codex', claude: 'Claude' };
   const SOURCE_COLORS = { dsh: 'var(--dsh)', codex: 'var(--codex)', claude: 'var(--claude)' };
 
+  // The list is reconciled by key so a periodic state push updates text in place.
+  // Replacing list.innerHTML would recreate every row and visibly flash every scan.
+  const rowNodes = new Map();
+  let emptyNode = null;
+  let renderedFilter = null;
+
   function post(type, payload = {}) {
     if (host) host.postMessage({ type, ...payload });
   }
@@ -137,16 +143,106 @@
       done: ['还没有完成的记录', '勾选记录左侧的方框后，它们会留在这里。'],
     };
     const [title, text] = messages[view.filter] ?? messages.all;
-    return `<div class="empty">
+    return `<div class="empty" data-filter="${escapeHtml(view.filter)}">
       <div class="empty-art">${ICONS.inbox}</div>
       <div class="empty-title">${title}</div>
       <div class="empty-text">${text}</div>
     </div>`;
   }
 
+  function createRowNode(row) {
+    const template = document.createElement('template');
+    template.innerHTML = rowHtml(row).trim();
+    return template.content.firstElementChild;
+  }
+
+  function setText(element, value) {
+    if (element && element.textContent !== value) element.textContent = value;
+  }
+
+  function updateRowNode(node, row) {
+    node.classList.toggle('done', Boolean(row.done));
+    node.classList.toggle('new', Boolean(row.isNew));
+    if (node.dataset.source !== row.sourceId) node.dataset.source = row.sourceId;
+
+    const title = row.title || '未命名会话';
+    if (node.getAttribute('aria-label') !== title) node.setAttribute('aria-label', title);
+
+    const check = node.querySelector('.check');
+    if (check) {
+      const checked = Boolean(row.done);
+      check.classList.toggle('checked', checked);
+      check.setAttribute('aria-checked', String(checked));
+      const checkLabel = checked ? '取消完成' : '标记完成';
+      if (check.getAttribute('aria-label') !== checkLabel) check.setAttribute('aria-label', checkLabel);
+    }
+
+    const sourceChip = node.querySelector('.source-chip');
+    setText(sourceChip, SOURCE_NAMES[row.sourceId] ?? row.sourceName ?? row.sourceId);
+
+    const timeElement = node.querySelector('.row-time');
+    if (timeElement) {
+      const timeValue = row.completedAt ?? row.lastActivityAt ?? '';
+      if (timeElement.dataset.time !== timeValue) timeElement.dataset.time = timeValue;
+      setText(timeElement, relTime(timeValue));
+    }
+
+    setText(node.querySelector('.row-title'), title);
+    setText(node.querySelector('.folder'), folderLabel(row.cwd));
+
+    const chip = stateChip(row);
+    const stateElement = node.querySelector('.state');
+    if (stateElement) {
+      setText(stateElement, chip.text);
+      const className = `state ${chip.cls}`;
+      if (stateElement.className !== className) stateElement.className = className;
+    }
+  }
+
+  function reconcileRows(rows) {
+    if (emptyNode) {
+      emptyNode.remove();
+      emptyNode = null;
+    }
+
+    const wanted = new Set(rows.map((row) => row.key));
+    for (const [key, node] of rowNodes) {
+      if (wanted.has(key)) continue;
+      node.remove();
+      rowNodes.delete(key);
+    }
+
+    rows.forEach((row, index) => {
+      let node = rowNodes.get(row.key);
+      if (!node) {
+        node = createRowNode(row);
+        rowNodes.set(row.key, node);
+      } else {
+        updateRowNode(node, row);
+      }
+
+      const current = listEl.children[index];
+      if (current !== node) listEl.insertBefore(node, current ?? null);
+    });
+
+    while (listEl.children.length > rows.length) {
+      listEl.lastElementChild?.remove();
+    }
+    renderedFilter = view.filter;
+  }
+
+  function renderEmpty() {
+    for (const node of rowNodes.values()) node.remove();
+    rowNodes.clear();
+
+    if (emptyNode && renderedFilter === view.filter && emptyNode.isConnected) return;
+    listEl.innerHTML = emptyHtml();
+    emptyNode = listEl.firstElementChild;
+    renderedFilter = view.filter;
+  }
+
   function summaryText() {
     if (!view.data) return '正在加载…';
-    if (view.data.scanning) return '正在扫描本地会话…';
     const { unread, running, total } = view.data.counts ?? {};
     if (unread > 0) return `${unread} 条待看 · ${running ?? 0} 个进行中`;
     if (running > 0) return `${running} 个进行中 · 共 ${total ?? 0} 条记录`;
@@ -157,7 +253,6 @@
     if (!view.data) return;
     const data = view.data;
     const counts = data.counts ?? { unread: 0, running: 0, done: 0, total: 0 };
-    const scrollTop = listEl.scrollTop;
     const rows = filteredRows();
 
     $('#brandSub').textContent = summaryText();
@@ -165,21 +260,19 @@
     $('#countUnread').textContent = counts.unread ?? 0;
     $('#countRunning').textContent = counts.running ?? 0;
     $('#countDone').textContent = counts.done ?? 0;
-    listEl.innerHTML = rows.length > 0 ? rows.map(rowHtml).join('') : emptyHtml();
-    listEl.scrollTop = scrollTop;
+
+    if (rows.length > 0) reconcileRows(rows);
+    else renderEmpty();
 
     document.querySelectorAll('.filter').forEach((button) => {
       button.classList.toggle('active', button.dataset.filter === view.filter);
     });
 
-    const scanning = Boolean(data.scanning);
     const pulse = $('#scanPulse');
-    pulse.classList.toggle('live', scanning || (counts.running ?? 0) > 0);
-    $('#scanText').textContent = scanning
-      ? '正在扫描本地会话…'
-      : data.lastScanAt
-        ? `最近扫描 ${clockTime(data.lastScanAt)}`
-        : '尚未扫描';
+    pulse.classList.toggle('live', (counts.running ?? 0) > 0);
+    $('#scanText').textContent = data.lastScanAt
+      ? `最近扫描 ${clockTime(data.lastScanAt)}`
+      : '尚未扫描';
 
     $('#clearDoneBtn').disabled = (counts.done ?? 0) === 0;
     $('#pinBtn').classList.toggle('active', Boolean(data.settings?.alwaysOnTop));
@@ -671,7 +764,7 @@
       },
       scanning: false,
       lastScanAt: new Date(now - 6000).toISOString(),
-      version: '0.1.0',
+      version: '0.1.1',
       appDataPath: 'C:\\Users\\demo\\AppData\\Roaming\\AgentInbox',
     };
   }

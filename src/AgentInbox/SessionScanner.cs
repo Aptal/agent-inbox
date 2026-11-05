@@ -189,6 +189,7 @@ public sealed class SessionScanner : IDisposable
     {
         if (Interlocked.Exchange(ref _scanning, 1) == 1) return;
         Interlocked.Exchange(ref _pendingScan, 0);
+        var completions = new Dictionary<string, AgentSession>(StringComparer.Ordinal);
         try
         {
             _debounce?.Change(Timeout.Infinite, Timeout.Infinite);
@@ -217,8 +218,10 @@ public sealed class SessionScanner : IDisposable
                 }
 
                 var merge = _store.Merge(collected, _settings.LookbackDays);
-                _lastScanAt = DateTimeOffset.Now;
-                Publish(merge.NewCompletions, merge.Rows);
+                foreach (var completion in merge.NewCompletions)
+                {
+                    completions[completion.Key] = completion;
+                }
             }
 
             if (_sources.Count == 0)
@@ -234,7 +237,10 @@ public sealed class SessionScanner : IDisposable
         {
             Volatile.Write(ref _scanning, 0);
             _lastScanAt = DateTimeOffset.Now;
-            Publish(Array.Empty<AgentSession>());
+            // Publish once per scan, after every source has been merged. Publishing
+            // after each source made the list visibly change two or three times in
+            // a row even when the user was not looking at a different source.
+            Publish(completions.Values.ToList());
             if (!_disposed && Volatile.Read(ref _pendingScan) == 1)
             {
                 _debounce?.Change(50, Timeout.Infinite);
